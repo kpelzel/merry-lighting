@@ -4,16 +4,19 @@ input:
   universe: 1
 output:
   light1:
+    mac: 00:11:22:33:FF:EE
     uuid: 4159263d-c2d2-d0c4-8dec-02409416a5f5
     redByte: 1
     greenByte: 2
     blueByte: 3
   light2:
+    mac: 00:11:22:33:FF:EE
     uuid: 9486272b-4d8d-58e7-4b38-68202408bc5f
     redByte: 4
     greenByte: 5
     blueByte: 6
   light3:
+    mac: 00:11:22:33:FF:EE
     uuid: 1340a18a-2e8d-41eb-acf1-b283e518654a
     redByte: 7
     greenByte: 8
