@@ -224,6 +224,7 @@ func getCharacteristics(devs map[string]*bluetooth.Device) (map[string]*bluetoot
 	// charRID := bluetooth.New16BitUUID(0xFFD4)
 
 	for dn, dev := range devs {
+		log.Debugf("looking for services: %v %v", serWID, serRID)
 		ser, err := dev.DiscoverServices([]bluetooth.UUID{serWID, serRID})
 		if err != nil {
 			return nil, fmt.Errorf("failed to discover services for dev[%v]: %v", dn, err)
