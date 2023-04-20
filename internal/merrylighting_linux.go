@@ -2,8 +2,8 @@ package internal
 
 import (
 	"fmt"
-
 	log "github.com/sirupsen/logrus"
+	"time"
 	"tinygo.org/x/bluetooth"
 )
 
