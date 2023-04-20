@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"tinygo.org/x/bluetooth"
@@ -23,6 +24,33 @@ func connectToLights(lights map[string]confLight) (map[string]*bluetooth.Device,
 			UUID: uuid,
 		}
 
+		// scan for the light we want to connect to
+		scanChan := make(chan error, 1)
+		go func() {
+			log.Infof("scanning for light[%v] at %v...", ln, uuid.String())
+			err = adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
+				if device.Address.String() == uuid.String() {
+					scanChan <- nil
+				}
+			})
+			if err != nil {
+				scanChan <- fmt.Errorf("failed to scan for ble devices: %v", err)
+			}
+		}()
+
+		select {
+		case scanRes := <-scanChan:
+			if scanRes != nil {
+				return nil, fmt.Errorf("error while scanning for light[%v] at %v: %v", ln, l.UUID, scanRes)
+			} else {
+				log.Infof("found light[%v] at %v", ln, l.UUID)
+				adapter.StopScan()
+			}
+		case <-time.After(5 * time.Second):
+			return nil, fmt.Errorf("failed to find light[%v] at %v. Is it in range?", ln, l.UUID)
+		}
+
+		// connect to the light that we found while scanning
 		log.Infof("connecting to light[%v] at %v...", ln, l.UUID)
 		dev, err := adapter.Connect(address, bluetooth.ConnectionParams{})
 		if err != nil {

@@ -38,7 +38,10 @@ func StartMerryLighting(debug bool) error {
 	log.Debugf("config: %+v", conf)
 
 	// Enable BLE interface.
-	must("enable BLE stack", adapter.Enable())
+	err = adapter.Enable()
+	if err != nil {
+		log.Fatalf("failed to enable ble stack: %v", err)
+	}
 
 	// connect to bluetooth lights
 	devs, err := connectToLights(conf.Output)
@@ -257,10 +260,4 @@ func getCharacteristics(devs map[string]*bluetooth.Device) (map[string]*bluetoot
 	}
 
 	return finalCharacteristics, nil
-}
-
-func must(action string, err error) {
-	if err != nil {
-		panic("failed to " + action + ": " + err.Error())
-	}
 }

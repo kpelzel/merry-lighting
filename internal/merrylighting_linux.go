@@ -25,6 +25,33 @@ func connectToLights(lights map[string]confLight) (map[string]*bluetooth.Device,
 			},
 		}
 
+		// scan for the light we want to connect to
+		scanChan := make(chan error, 1)
+		go func() {
+			log.Infof("scanning for light[%v] at %v...", ln, mac.String())
+			err = adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
+				if device.Address.String() == mac.String() {
+					scanChan <- nil
+				}
+			})
+			if err != nil {
+				scanChan <- fmt.Errorf("failed to scan for ble devices: %v", err)
+			}
+		}()
+
+		select {
+		case scanRes := <-scanChan:
+			if scanRes != nil {
+				return nil, fmt.Errorf("error while scanning for light[%v] at %v: %v", ln, mac.String(), scanRes)
+			} else {
+				log.Infof("found light[%v] at %v", ln, mac.String())
+				adapter.StopScan()
+			}
+		case <-time.After(5 * time.Second):
+			return nil, fmt.Errorf("failed to find light[%v] at %v. Is it in range?", ln, mac.String())
+		}
+
+		// connect to the light that we found while scanning
 		log.Infof("connecting to light[%v] at %v...", ln, l.MACAddress)
 		dev, err := adapter.Connect(address, bluetooth.ConnectionParams{})
 		if err != nil {

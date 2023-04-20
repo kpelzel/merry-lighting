@@ -7,13 +7,19 @@ import (
 
 func Scan() {
 	// Enable BLE interface.
-	must("enable BLE stack", adapter.Enable())
+	// Enable BLE interface.
+	err := adapter.Enable()
+	if err != nil {
+		log.Fatalf("failed to enable ble stack: %v", err)
+	}
 
 	// Start scanning.
 	log.Info("scanning...")
-	err := adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
+	err = adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
 		log.Infof("found device: %v %v %v %+v", device.Address.String(), device.RSSI, device.LocalName(), device)
 		// println("found device:", device.Address.String(), device.RSSI, device.LocalName())
 	})
-	must("start scan", err)
+	if err != nil {
+		log.Fatalf("failed to scan for ble devices: %v", err)
+	}
 }
