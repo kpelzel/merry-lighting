@@ -13,6 +13,10 @@ import (
 	"tinygo.org/x/bluetooth"
 )
 
+type merryLighting struct {
+	colorChan chan color
+}
+
 var adapter = bluetooth.DefaultAdapter
 
 func StartMerryLighting(debug bool) error {
@@ -63,6 +67,13 @@ func StartMerryLighting(debug bool) error {
 		}
 	}
 
+	ml := &merryLighting{
+		colorChan: make(chan color),
+	}
+
+	//  monitor for color changes
+	go ml.listenForColor()
+
 	addr := net.JoinHostPort(conf.Input.IP.String(), strconv.Itoa(conf.Input.Port))
 	// listen for incoming sACN packets
 	udpServer, err := net.ListenPacket("udp", addr)
@@ -106,10 +117,16 @@ func StartMerryLighting(debug bool) error {
 				log.Debugf("sending green: %v", gb)
 				log.Debugf("sending blue: %v", bb)
 
-				err := setColor(c, rb, gb, bb)
-				if err != nil {
-					log.Errorf("failed to set color for dev[%v]: %v", ln, err)
+				select {
+				case ml.colorChan <- color{char: c, Red: rb, Green: gb, Blue: bb}:
+				default:
+					fmt.Println("bluetooth busy, color not sent")
 				}
+
+				// err := setColor(c, rb, gb, bb)
+				// if err != nil {
+				// 	log.Errorf("failed to set color for dev[%v]: %v", ln, err)
+				// }
 			}
 		}
 	}
@@ -246,19 +263,4 @@ func must(action string, err error) {
 	if err != nil {
 		panic("failed to " + action + ": " + err.Error())
 	}
-}
-
-func on(dChar *bluetooth.DeviceCharacteristic) error {
-	_, err := dChar.WriteWithoutResponse([]byte{0xCC, 0x23, 0x33})
-	return err
-}
-
-func off(dChar *bluetooth.DeviceCharacteristic) error {
-	_, err := dChar.WriteWithoutResponse([]byte{0xCC, 0x24, 0x33})
-	return err
-}
-
-func setColor(dChar *bluetooth.DeviceCharacteristic, red, green, blue byte) error {
-	_, err := dChar.WriteWithoutResponse([]byte{0x56, red, green, blue, 0x00, 0xF0, 0xAA})
-	return err
 }

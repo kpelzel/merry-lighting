@@ -1,6 +1,10 @@
 package internal
 
-import "net"
+import (
+	"net"
+
+	"tinygo.org/x/bluetooth"
+)
 
 type e131Packet struct {
 	root  *e131PacketRoot
@@ -53,4 +57,11 @@ type confLight struct {
 	RedByte    int    `yaml:"redByte"`
 	GreenByte  int    `yaml:"greenByte"`
 	BlueByte   int    `yaml:"blueByte"`
+}
+
+type color struct {
+	char  *bluetooth.DeviceCharacteristic
+	Red   byte
+	Green byte
+	Blue  byte
 }

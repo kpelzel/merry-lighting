@@ -38,3 +38,27 @@ func connectToLights(lights map[string]confLight) (map[string]*bluetooth.Device,
 
 	return finalDevs, nil
 }
+
+func on(dChar *bluetooth.DeviceCharacteristic) error {
+	_, err := dChar.WriteWithoutResponse([]byte{0xCC, 0x23, 0x33})
+	return err
+}
+
+func off(dChar *bluetooth.DeviceCharacteristic) error {
+	_, err := dChar.WriteWithoutResponse([]byte{0xCC, 0x24, 0x33})
+	return err
+}
+
+func setColor(dChar *bluetooth.DeviceCharacteristic, red, green, blue byte) error {
+	_, err := dChar.WriteWithoutResponse([]byte{0x56, red, green, blue, 0x00, 0xF0, 0xAA})
+	return err
+}
+
+func (ml *merryLighting) listenForColor() {
+	for {
+		select {
+		case color := <-ml.colorChan:
+			setColor(color.char, color.Red, color.Green, color.Blue)
+		}
+	}
+}
