@@ -19,13 +19,13 @@ type merryLighting struct {
 
 var adapter = bluetooth.DefaultAdapter
 
-func StartMerryLighting(debug bool) error {
+func StartMerryLighting(debug bool, config string) error {
 	if debug {
 		log.SetLevel(log.DebugLevel)
 	}
 
 	// read config file
-	confBytes, err := ioutil.ReadFile("config.yaml")
+	confBytes, err := ioutil.ReadFile(config)
 	if err != nil {
 		log.Fatalf("failed to read config file: %v", err)
 	}

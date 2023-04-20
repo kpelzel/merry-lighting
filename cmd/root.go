@@ -9,14 +9,15 @@ import (
 )
 
 var (
-	debug bool
+	debug  bool
+	config string
 
 	RootCmd = &cobra.Command{
 		Use:   "merry-lighting",
 		Short: "run merry-lighting",
 		Long:  "run merry-lighting",
 		Run: func(cmd *cobra.Command, args []string) {
-			internal.StartMerryLighting(debug)
+			internal.StartMerryLighting(debug, config)
 		},
 	}
 )
@@ -30,4 +31,5 @@ func Execute() {
 
 func init() {
 	RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "enable debugging")
+	RootCmd.PersistentFlags().StringVarP(&config, "config", "c", "config.yaml", "config file location")
 }
