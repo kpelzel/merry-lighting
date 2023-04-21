@@ -123,7 +123,7 @@ func StartMerryLighting(debug bool, config string) error {
 				select {
 				case ml.colorChan <- color{char: c, Red: rb, Green: gb, Blue: bb}:
 				default:
-					fmt.Println("bluetooth busy, color not sent")
+					log.Debug("bluetooth busy, color not sent")
 				}
 
 				// err := setColor(c, rb, gb, bb)
