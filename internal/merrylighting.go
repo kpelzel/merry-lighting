@@ -115,6 +115,7 @@ func StartMerryLighting(debug bool, config string) error {
 			log.Debugf("value: %v", p.dmp.PropertyVal)
 
 			if !bytes.Equal(prevValue, p.dmp.PropertyVal) {
+				log.Debugf("new packet different than previous: %v vs %v", prevValue, p.dmp.PropertyVal)
 				prevValue = p.dmp.PropertyVal
 				for ln, c := range chars {
 					rb := p.dmp.PropertyVal[conf.Output[ln].RedByte]
