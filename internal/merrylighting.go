@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
@@ -85,6 +86,8 @@ func StartMerryLighting(debug bool, config string) error {
 	}
 	defer udpServer.Close()
 
+	prevValue := []byte{}
+
 	log.Infof("listening on %v for sACN packets", addr)
 	for {
 		buf := make([]byte, 1024)
@@ -111,25 +114,28 @@ func StartMerryLighting(debug bool, config string) error {
 			log.Debugf("value count: %v", binary.BigEndian.Uint16(p.dmp.PropertyValCount))
 			log.Debugf("value: %v", p.dmp.PropertyVal)
 
-			for ln, c := range chars {
-				rb := p.dmp.PropertyVal[conf.Output[ln].RedByte]
-				gb := p.dmp.PropertyVal[conf.Output[ln].GreenByte]
-				bb := p.dmp.PropertyVal[conf.Output[ln].BlueByte]
+			if !bytes.Equal(prevValue, p.dmp.PropertyVal) {
+				prevValue = p.dmp.PropertyVal
+				for ln, c := range chars {
+					rb := p.dmp.PropertyVal[conf.Output[ln].RedByte]
+					gb := p.dmp.PropertyVal[conf.Output[ln].GreenByte]
+					bb := p.dmp.PropertyVal[conf.Output[ln].BlueByte]
 
-				log.Debugf("sending red: %v", rb)
-				log.Debugf("sending green: %v", gb)
-				log.Debugf("sending blue: %v", bb)
+					log.Debugf("sending red: %v", rb)
+					log.Debugf("sending green: %v", gb)
+					log.Debugf("sending blue: %v", bb)
 
-				select {
-				case ml.colorChan <- color{char: c, Red: rb, Green: gb, Blue: bb}:
-				default:
-					log.Debug("bluetooth busy, color not sent")
+					select {
+					case ml.colorChan <- color{char: c, Red: rb, Green: gb, Blue: bb}:
+					default:
+						log.Debug("bluetooth busy, color not sent")
+					}
+
+					// err := setColor(c, rb, gb, bb)
+					// if err != nil {
+					// 	log.Errorf("failed to set color for dev[%v]: %v", ln, err)
+					// }
 				}
-
-				// err := setColor(c, rb, gb, bb)
-				// if err != nil {
-				// 	log.Errorf("failed to set color for dev[%v]: %v", ln, err)
-				// }
 			}
 		}
 	}
