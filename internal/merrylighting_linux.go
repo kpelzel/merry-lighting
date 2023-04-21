@@ -90,7 +90,9 @@ func (ml *merryLighting) listenForColor() {
 	for {
 		select {
 		case color := <-ml.colorChan:
-			setColor(color.char, color.Red, color.Green, color.Blue)
+			go func() {
+				setColor(color.char, color.Red, color.Green, color.Blue)
+			}()
 		}
 	}
 }
