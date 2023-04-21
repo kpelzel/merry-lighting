@@ -109,13 +109,13 @@ func StartMerryLighting(debug bool, config string) error {
 			// logger.Printf("dmp: %+v", p.dmp)
 
 			log.Debugf("received sACN packet:")
-			log.Debugf("universe: %v", binary.BigEndian.Uint16(p.frame.Universe))
-			log.Debugf("source name: %s", string(p.frame.SourceName))
-			log.Debugf("value count: %v", binary.BigEndian.Uint16(p.dmp.PropertyValCount))
-			log.Debugf("value: %v", p.dmp.PropertyVal)
 
 			if !bytes.Equal(prevValue, p.dmp.PropertyVal) {
-				log.Debugf("new packet different than previous: %v vs %v", prevValue, p.dmp.PropertyVal)
+				log.Debugf("universe: %v", binary.BigEndian.Uint16(p.frame.Universe))
+				log.Debugf("source name: %s", string(p.frame.SourceName))
+				log.Debugf("value count: %v", binary.BigEndian.Uint16(p.dmp.PropertyValCount))
+				log.Debugf("value: %v", p.dmp.PropertyVal)
+
 				prevValue = p.dmp.PropertyVal
 				for ln, c := range chars {
 					rb := p.dmp.PropertyVal[conf.Output[ln].RedByte]
