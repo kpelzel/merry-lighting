@@ -11,7 +11,7 @@ func connectToLights(lights map[string]confLight) (map[string]*bluetooth.Device,
 	finalDevs := make(map[string]*bluetooth.Device)
 
 	admac, _ := adapter.Address()
-	fmt.Debugf("using adapter: %v", admac)
+	log.Debugf("using adapter: %v", admac)
 
 	for ln, l := range lights {
 		mac, err := bluetooth.ParseMAC(l.MACAddress)
