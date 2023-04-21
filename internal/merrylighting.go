@@ -71,7 +71,7 @@ func StartMerryLighting(debug bool, config string) error {
 	}
 
 	ml := &merryLighting{
-		colorChan: make(chan color),
+		colorChan: make(chan color, 1000),
 	}
 
 	//  monitor for color changes
