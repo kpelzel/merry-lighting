@@ -108,7 +108,7 @@ func StartMerryLighting(debug bool, config string) error {
 			// logger.Printf("frame: %+v", p.frame)
 			// logger.Printf("dmp: %+v", p.dmp)
 
-			log.Debugf("received sACN packet:")
+			// log.Debugf("received sACN packet:")
 
 			if !bytes.Equal(prevValue, p.dmp.PropertyVal) {
 				log.Debugf("universe: %v", binary.BigEndian.Uint16(p.frame.Universe))
